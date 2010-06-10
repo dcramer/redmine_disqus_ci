@@ -1,0 +1,23 @@
+<% if @tests %>
+  <h2>Continuous Integration</h2>
+
+  <% if @tests.empty? %>
+      <p class="nodata"><%= l(:label_no_data) %></p>
+  <% else %>
+      <div id="builds">
+      <% @tests.group_by(&:branch).each do |group| %>
+        <h3><%= group[0] %></h3>
+        <% group[1].each do |test| %>
+          <% content_tag('div', :class => 'build ' + (test.successful? ? 'success' : 'failure')) do -%>
+            <%= format_time(test.tested_on) %>: <%= link_to test.revision, :controller => 'disqus_ci', :action => 'details', :id => @project, :revision => test.revision %> by <%= link_to_user(test.author) %><br />
+            <%= test.total_passed.to_i %> out of <%= test.total_tests.to_i %>
+          <% end -%>
+        <% end %>
+      <% end %>
+      </div>
+  <% end %>
+
+  <% content_for :header_tags do %>
+      <%= stylesheet_link_tag '/plugin_assets/disqus_ci/stylesheets/disqus_ci' %>
+  <% end %>
+<% end %>

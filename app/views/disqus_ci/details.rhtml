@@ -1,0 +1,28 @@
+<h2>Build Results</h2>
+
+<dl>
+  <dt>Author:</dt>
+  <dd><%= link_to_user(@test.author) %></dd>
+  <% if @test.tested_on %>
+    <dt>Tested On:</dt>
+    <dd><%= format_time(@test.tested_on) %></dd>
+  <% end %>
+  <dt>Status:</dt>
+  <dd><%= @test.total_passed.to_i %> out of <%= @test.total_tests.to_i %> passed (<%= @test.total_skipped.to_i %> skipped)</dd>
+</dl>
+
+<% if @test.exception %>
+  <pre><%= @test.exception %></pre>
+<% end %>
+
+<% @test.messages.group_by(&:reason).each do |group| %>
+  <h4><%= group[0] %></h4>
+  <ul>
+    <% group[1].each do |m| %>
+      <li>
+        <strong><%= m.name %></strong>
+        <pre><%= m.traceback %></pre>
+      </li>
+    <% end %>
+  </ul>
+<% end %>

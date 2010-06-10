@@ -1,0 +1,9 @@
+<% fields = ProjectCustomField.find_all_by_field_format('string') %>
+
+<p><label>Tessie URL</label>
+<%= select_tag 'settings[tessie_url_custom_field]',
+               '<option value="">(Select one)</option>' +
+               options_from_collection_for_select(fields, :id, :name, @settings['tessie_url_custom_field'].to_i) %><br />
+<em>If this list is empty, go to 'Admin -> Custom fields' and create a <strong>Project 'string' custom field</strong>.</em>
+
+</p>
