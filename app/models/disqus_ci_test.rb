@@ -86,13 +86,13 @@ class DisqusCiTest < ActiveRecord::Base
         end
       end
     rescue OpenURI::HTTPError
-      puts 'HTTPError: Unable to connect to remote host, storing empty build.'
-      test = DisqusCiTest.create do |t|
-        t.repository_id = project.repository.id
-        t.branch = branch
-        t.revision = revision_id
-        t.changeset_id = changeset.id
-      end
+      # puts 'HTTPError: Unable to connect to remote host, storing empty build.'
+      # test = DisqusCiTest.create do |t|
+      #   t.repository_id = project.repository.id
+      #   t.branch = branch
+      #   t.revision = revision_id
+      #   t.changeset_id = changeset.id
+      # end
     rescue SocketError
       puts 'SocketError: Unable to connect to remote host.'
     end
@@ -102,7 +102,7 @@ class DisqusCiTest < ActiveRecord::Base
     Project.active.has_module(:repository).find(:all, :include => :repository).each do |project|
       if project.repository
         # XXX this doesnt find by branch
-        changesets = project.repository.changesets.find(:all, :conditions => ['revision NOT IN (SELECT revision FROM disqus_ci_tests)'])
+        changesets = project.repository.changesets.find(:all, :conditions => ['commit_date > (SELECT max(b.commit_date) FROM disqus_ci_tests as a join changesets as b on a.changeset_id = b.id where a.repository_id = ?)', project.repository], :select => :revision)
 
         changesets.each do |c|
           DisqusCiTest.fetch_revision(project, c.revision)
