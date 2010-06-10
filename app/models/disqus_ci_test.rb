@@ -89,15 +89,9 @@ class DisqusCiTest < ActiveRecord::Base
         end
       end
     rescue OpenURI::HTTPError
-      # puts 'HTTPError: Unable to connect to remote host, storing empty build.'
-      # test = DisqusCiTest.create do |t|
-      #   t.repository_id = project.repository.id
-      #   t.branch = branch
-      #   t.revision = revision_id
-      #   t.changeset_id = changeset.id
-      # end
+      puts 'HTTPError: Unable to connect to remote host: ' + tessie_url
     rescue SocketError
-      puts 'SocketError: Unable to connect to remote host.'
+      puts 'SocketError: Unable to connect to remote host: ' + tessie_url
     end
   end
 
