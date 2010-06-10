@@ -69,9 +69,12 @@ class DisqusCiTest < ActiveRecord::Base
             t.message = hash['message']
             t.exception = hash['exception']
             t.tested_on = hash['date']
-            t.total_passed = hash['total_passed']
-            t.total_tests = hash['total_tests']
+            t.total_passed = hash['total_passed'].to_i
+            t.total_tests = hash['total_tests'].to_i
             t.total_skipped = hash['tests']['skipped'].length
+          end
+          if test.errors
+            return
           end
           ['errors', 'failures', 'skipped'].each do |reason|
             hash['tests'][reason].each do |r|
@@ -101,8 +104,8 @@ class DisqusCiTest < ActiveRecord::Base
   def self.fetch_missing_tests
     Project.active.has_module(:repository).find(:all, :include => :repository).each do |project|
       if project.repository
-        # XXX this doesnt find by branch
-        changesets = project.repository.changesets.find(:all, :conditions => ['commit_date > (SELECT max(b.commit_date) FROM disqus_ci_tests as a join changesets as b on a.changeset_id = b.id where a.repository_id = ?)', project.repository], :select => :revision)
+        commit_date = Changeset.maximum('commit_date', :conditions => ['id IN (select changeset_id from disqus_ci_tests where repository_id = ?)', project.repository])
+        changesets = project.repository.changesets.find(:all, :conditions => commit_date ? ['commit_date > ?', commit_date] : [], :select => :revision)
 
         changesets.each do |c|
           DisqusCiTest.fetch_revision(project, c.revision)
